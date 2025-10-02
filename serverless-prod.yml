@@ -1,0 +1,113 @@
+# Production stage configuration
+service: serverless-crud-api
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: us-east-1
+  stage: prod
+  environment:
+    DYNAMODB_TABLE: ${self:service}-${self:provider.stage}-items
+    STAGE: ${self:provider.stage}
+    LOG_LEVEL: error
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+          Resource: "arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}"
+        - Effect: Allow
+          Action:
+            - logs:CreateLogGroup
+            - logs:CreateLogStream
+            - logs:PutLogEvents
+          Resource: "arn:aws:logs:${self:provider.region}:*:*"
+
+functions:
+  createItem:
+    handler: src/handlers/createItem.handler
+    events:
+      - http:
+          path: /items
+          method: post
+          cors: true
+    timeout: 10
+    reservedConcurrency: 100
+
+  getItems:
+    handler: src/handlers/getItems.handler
+    events:
+      - http:
+          path: /items
+          method: get
+          cors: true
+    timeout: 10
+    reservedConcurrency: 100
+
+  getItem:
+    handler: src/handlers/getItem.handler
+    events:
+      - http:
+          path: /items/{id}
+          method: get
+          cors: true
+    timeout: 10
+    reservedConcurrency: 100
+
+  updateItem:
+    handler: src/handlers/updateItem.handler
+    events:
+      - http:
+          path: /items/{id}
+          method: put
+          cors: true
+    timeout: 10
+    reservedConcurrency: 100
+
+  deleteItem:
+    handler: src/handlers/deleteItem.handler
+    events:
+      - http:
+          path: /items/{id}
+          method: delete
+          cors: true
+    timeout: 10
+    reservedConcurrency: 100
+
+resources:
+  Resources:
+    ItemsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.DYNAMODB_TABLE}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+        PointInTimeRecoverySpecification:
+          PointInTimeRecoveryEnabled: true
+        DeletionProtectionEnabled: true
+        Tags:
+          - Key: Environment
+            Value: ${self:provider.stage}
+          - Key: Service
+            Value: ${self:service}
+
+plugins:
+  - serverless-offline
+
+custom:
+  serverless-offline:
+    httpPort: 3001
+    host: 0.0.0.0

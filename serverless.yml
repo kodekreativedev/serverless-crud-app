@@ -1,0 +1,188 @@
+service: serverless-crud-api
+
+frameworkVersion: '3'
+
+provider:
+  name: aws
+  runtime: nodejs18.x
+  region: ${opt:region, 'us-east-1'}
+  stage: ${opt:stage, 'dev'}
+  environment:
+    DYNAMODB_TABLE: ${self:service}-${self:provider.stage}-items
+    STAGE: ${self:provider.stage}
+  iam:
+    role:
+      statements:
+        - Effect: Allow
+          Action:
+            - dynamodb:Query
+            - dynamodb:Scan
+            - dynamodb:GetItem
+            - dynamodb:PutItem
+            - dynamodb:UpdateItem
+            - dynamodb:DeleteItem
+          Resource: "arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.DYNAMODB_TABLE}"    
+functions:
+  options:
+    handler: src/handlers/optionsHandler.handler
+    events:
+      - http:
+          path: /{proxy+}
+          method: options
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+            allowCredentials: false
+
+  getItems:
+    handler: src/handlers/getItems.handler
+    events:
+      - http:
+          path: /items
+          method: get
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+            allowCredentials: false
+
+  getItem:
+    handler: src/handlers/getItem.handler
+    events:
+      - http:
+          path: /items/{id}
+          method: get
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+            allowCredentials: false
+
+  createItem:
+    handler: src/handlers/createItem.handler
+    events:
+      - http:
+          path: /items
+          method: post
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+            allowCredentials: false
+
+  updateItem:
+    handler: src/handlers/updateItem.handler
+    events:
+      - http:
+          path: /items/{id}
+          method: put
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+            allowCredentials: false
+
+  deleteItem:
+    handler: src/handlers/deleteItem.handler
+    events:
+      - http:
+          path: /items/{id}
+          method: delete
+          cors:
+            origin: '*'
+            headers:
+              - Content-Type
+              - X-Amz-Date
+              - Authorization
+              - X-Api-Key
+              - X-Amz-Security-Token
+            allowCredentials: false
+
+resources:
+  Resources:
+    ItemsTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: ${self:provider.environment.DYNAMODB_TABLE}
+        AttributeDefinitions:
+          - AttributeName: id
+            AttributeType: S
+        KeySchema:
+          - AttributeName: id
+            KeyType: HASH
+        BillingMode: PAY_PER_REQUEST
+
+plugins:
+  - serverless-offline
+  - serverless-webpack
+
+custom:
+  serverless-offline:
+    httpPort: 3001
+  webpack:
+    webpackConfig: 'webpack.config.js'
+    includeModules: true
+    packager: 'npm'
+    packagerOptions:
+      scripts:
+        - npm ci --production
+package:
+  patterns:
+    - '!node_modules/.prisma/client/libquery_engine-*'
+    - '!node_modules/prisma/libquery_engine-*'
+    - '!node_modules/@prisma/engines/**'
+    - '!node_modules/.prisma/client/schema.prisma'
+    - '!node_modules/.prisma/client/query_engine-*'
+    - '!node_modules/.prisma/client/libquery_engine.*'
+    - '!node_modules/.prisma/client/schema.prisma'
+    - '!node_modules/.prisma/client/schema.prisma'
+    - '!node_modules/.prisma/client/generator-build/'
+    - '!node_modules/.prisma/client/generated/'
+    - '!node_modules/.prisma/client/'
+    - '!.git/'
+    - '!.gitignore'
+    - '!README.md'
+    - '!tsconfig.json'
+    - '!tsconfig.serverless.json'
+    - '!package.json'
+    - '!package-lock.json'
+    - '!yarn.lock'
+    - '!pnpm-lock.yaml'
+    - '!.eslintrc.json'
+    - '!.prettierrc'
+    - '!.prettierignore'
+    - '!.vscode/'
+    - '!.github/'
+    - '!**/__tests__/'
+    - '!**/*.test.ts'
+    - '!**/*.spec.ts'
+    - '!**/__mocks__/'
+    - '!**/coverage/'
+    - '!**/dist/'
+    - '!**/.dist/'
+    - '!**/.serverless/'
+    - '!**/.webpack/'
+    - '!**/.build/'
+    - '!**/.serverless_plugins/'
+    - '!**/.serverless_plugins/**'

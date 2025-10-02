@@ -1,0 +1,70 @@
+{
+  "// ": "Created comprehensive sample configuration file",
+  "project": {
+    "name": "serverless-crud-app",
+    "description": "Full-stack serverless CRUD application with sample credentials",
+    "version": "1.0.0"
+  },
+  "aws": {
+    "region": "us-east-1",
+    "credentials": {
+      "accessKeyId": "AKIAIOSFODNN7EXAMPLE",
+      "secretAccessKey": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
+      "note": "⚠️ FAKE CREDENTIALS - Replace with real AWS credentials"
+    },
+    "resources": {
+      "s3": {
+        "devBucket": "my-crud-app-dev-frontend",
+        "prodBucket": "my-crud-app-prod-frontend"
+      },
+      "cloudfront": {
+        "devDistributionId": "E1A2B3C4D5E6F7",
+        "prodDistributionId": "E7F6E5D4C3B2A1"
+      },
+      "apiGateway": {
+        "devUrl": "https://abc123def4.execute-api.us-east-1.amazonaws.com/dev",
+        "prodUrl": "https://xyz789ghi0.execute-api.us-east-1.amazonaws.com/prod"
+      },
+      "dynamodb": {
+        "devTable": "serverless-crud-api-dev-items",
+        "prodTable": "serverless-crud-api-prod-items"
+      }
+    }
+  },
+  "github": {
+    "secrets": {
+      "AWS_ACCESS_KEY_ID": "AKIAIOSFODNN7EXAMPLE",
+      "AWS_SECRET_ACCESS_KEY": "wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
+      "DEV_S3_BUCKET": "my-crud-app-dev-frontend",
+      "PROD_S3_BUCKET": "my-crud-app-prod-frontend",
+      "DEV_CLOUDFRONT_DISTRIBUTION_ID": "E1A2B3C4D5E6F7",
+      "PROD_CLOUDFRONT_DISTRIBUTION_ID": "E7F6E5D4C3B2A1"
+    }
+  },
+  "frontend": {
+    "development": {
+      "apiUrl": "https://abc123def4.execute-api.us-east-1.amazonaws.com/dev",
+      "environment": "development"
+    },
+    "production": {
+      "apiUrl": "https://xyz789ghi0.execute-api.us-east-1.amazonaws.com/prod",
+      "environment": "production"
+    }
+  },
+  "local": {
+    "backend": {
+      "port": 3001,
+      "apiUrl": "http://localhost:3001/dev"
+    },
+    "frontend": {
+      "port": 3000,
+      "url": "http://localhost:3000"
+    }
+  },
+  "instructions": {
+    "setup": "Run ./setup-samples.sh to configure with sample credentials",
+    "test": "Run ./test-with-samples.sh to verify setup",
+    "deploy": "Replace sample credentials with real ones, then run npm run deploy:dev",
+    "documentation": "See README.md, DEPLOYMENT.md, and SAMPLE-CREDENTIALS.md for details"
+  }
+}

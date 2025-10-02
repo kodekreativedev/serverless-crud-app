@@ -2,9 +2,9 @@
 
 A full-stack serverless application built with AWS Lambda, API Gateway, DynamoDB, and React. This project demonstrates a complete CRUD (Create, Read, Update, Delete) application with modern CI/CD practices.
 
-**🚀 QUICK START: This project includes sample credentials for immediate testing. See [SAMPLE-CREDENTIALS.md](./SAMPLE-CREDENTIALS.md) for details.**
+** QUICK START: This project includes sample credentials for immediate testing. See [SAMPLE-CREDENTIALS.md](./SAMPLE-CREDENTIALS.md) for details.**
 
-## 🏗️ Architecture
+## Architecture
 
 ### Backend
 - **AWS Lambda**: Serverless compute for API endpoints
@@ -23,7 +23,7 @@ A full-stack serverless application built with AWS Lambda, API Gateway, DynamoDB
 - **Multi-stage deployments**: Development, Production, and PR previews
 - **AWS S3 + CloudFront**: Frontend hosting and CDN
 
-## 🚀 Quick Start
+##  Quick Start
 
 ### Prerequisites
 
@@ -118,7 +118,7 @@ The application will be available at `http://localhost:3000`.
 - CloudFront distribution for CDN
 - Route 53 for custom domain (optional)
 
-## 🚀 Deployment
+##  Deployment
 
 ### Manual Deployment
 
@@ -168,7 +168,7 @@ The CI/CD pipeline will automatically:
 - Deploy backend to production (after dev success)
 - Deploy frontend to production
 
-## 📱 API Endpoints
+##  API Endpoints
 
 ### Base URL
 - **Development**: `https://abc123def4.execute-api.us-east-1.amazonaws.com/dev` (SAMPLE)
@@ -212,7 +212,7 @@ curl -X POST https://abc123def4.execute-api.us-east-1.amazonaws.com/dev/items \
 }
 ```
 
-## 🧪 Testing
+##  Testing
 
 ### Backend Testing
 ```bash
@@ -246,14 +246,14 @@ npm run logs:dev
 npm run logs:prod
 ```
 
-## 🔒 Security Considerations
+##  Security Considerations
 
 1. **API Gateway**: CORS is configured for cross-origin requests
 2. **DynamoDB**: Uses IAM roles for access control
 3. **Lambda**: Minimal permissions principle
 4. **Frontend**: Environment variables for configuration
 
-## 🛠️ Troubleshooting
+##  Troubleshooting
 
 ### Common Issues
 
@@ -284,7 +284,7 @@ npm run remove:prod
 npm run logs:dev -- --function createItem
 ```
 
-## 📈 Scaling Considerations
+## Scaling Considerations
 
 ### Backend
 - Lambda automatically scales based on demand
@@ -296,7 +296,7 @@ npm run logs:dev -- --function createItem
 - S3 for static asset hosting
 - Consider implementing caching strategies
 
-## 🤝 Contributing
+##  Contributing
 
 1. Fork the repository
 2. Create a feature branch: `git checkout -b feature/new-feature`
@@ -306,11 +306,7 @@ npm run logs:dev -- --function createItem
 6. Push to the branch: `git push origin feature/new-feature`
 7. Submit a pull request
 
-## 📄 License
-
-This project is licensed under the MIT License - see the LICENSE file for details.
-
-## 🆘 Support
+##  Support
 
 If you encounter any issues:
 
@@ -319,7 +315,7 @@ If you encounter any issues:
 3. Open an issue on GitHub
 4. Contact the development team
 
-## 🔗 Useful Links
+##  Useful Links
 
 - [AWS Lambda Documentation](https://docs.aws.amazon.com/lambda/)
 - [Serverless Framework Documentation](https://www.serverless.com/framework/docs/)
@@ -333,4 +329,4 @@ If you encounter any issues:
 
 **Sample API URL**: `https://abc123def4.execute-api.us-east-1.amazonaws.com/dev`
 
-**⚠️ IMPORTANT**: The credentials and URLs in this project are SAMPLE/FAKE values for testing. Replace them with real AWS credentials and resources before deploying to production. See [SAMPLE-CREDENTIALS.md](./SAMPLE-CREDENTIALS.md) for details.
+** IMPORTANT**: The credentials and URLs in this project are SAMPLE/FAKE values for testing. Replace them with real AWS credentials and resources before deploying to production. See [SAMPLE-CREDENTIALS.md](./SAMPLE-CREDENTIALS.md) for details.

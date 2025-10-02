@@ -1,0 +1,121 @@
+name: Deploy Serverless CRUD Application
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+env:
+  NODE_VERSION: '18.x'
+  AWS_REGION: 'us-east-1'
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+    
+    - name: Install backend dependencies
+      run: npm ci
+    
+    - name: Install frontend dependencies
+      run: |
+        cd frontend
+        npm ci
+    
+    - name: Run backend tests
+      run: npm test -- --passWithNoTests
+    
+    - name: Run frontend tests
+      run: |
+        cd frontend
+        npm test -- --passWithNoTests --watchAll=false
+
+  deploy-dev:
+    needs: test
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    environment: development
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Deploy to development
+      run: npm run deploy:dev
+    
+    - name: Get API Gateway URL
+      id: get-url
+      run: |
+        API_URL=$(npx serverless info --stage dev --verbose | grep -o 'https://[^[:space:]]*execute-api[^[:space:]]*' | head -1)
+        echo "api_url=$API_URL" >> $GITHUB_OUTPUT
+        echo "Development API URL: $API_URL"
+    
+    - name: Display deployment info
+      run: |
+        echo "Backend deployed successfully!"
+        echo "API URL: ${{ steps.get-url.outputs.api_url }}"
+        echo "Development environment ready!"
+
+  deploy-prod:
+    needs: [test, deploy-dev]
+    runs-on: ubuntu-latest
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    environment: production
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Deploy to production
+      run: npm run deploy:prod
+    
+    - name: Get API Gateway URL
+      id: get-url
+      run: |
+        API_URL=$(npx serverless info --stage prod --verbose | grep -o 'https://[^[:space:]]*execute-api[^[:space:]]*' | head -1)
+        echo "api_url=$API_URL" >> $GITHUB_OUTPUT
+        echo "Production API URL: $API_URL"
+    
+    - name: Display deployment info
+      run: |
+        echo "Backend deployed successfully to PRODUCTION!"
+        echo "API URL: ${{ steps.get-url.outputs.api_url }}"
+        echo "Production environment ready!"

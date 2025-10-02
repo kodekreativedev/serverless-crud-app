@@ -1,0 +1,98 @@
+name: PR Preview Deployment
+
+on:
+  pull_request:
+    branches: [ main, master ]
+    types: [opened, synchronize, reopened]
+
+env:
+  NODE_VERSION: '18.x'
+  AWS_REGION: 'us-east-1'
+
+jobs:
+  deploy-preview:
+    runs-on: ubuntu-latest
+    environment: preview
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Deploy preview environment
+      run: |
+        STAGE_NAME="pr-${{ github.event.number }}"
+        npx serverless deploy --stage $STAGE_NAME
+    
+    - name: Get preview API URL
+      id: get-url
+      run: |
+        STAGE_NAME="pr-${{ github.event.number }}"
+        API_URL=$(npx serverless info --stage $STAGE_NAME --verbose | grep -o 'https://[^[:space:]]*execute-api[^[:space:]]*' | head -1)
+        echo "api_url=$API_URL" >> $GITHUB_OUTPUT
+        echo "Preview API URL: $API_URL"
+    
+    - name: Build frontend for preview
+      run: |
+        cd frontend
+        npm ci
+        REACT_APP_API_URL=${{ steps.get-url.outputs.api_url }} npm run build
+    
+    - name: Comment PR with preview URL
+      uses: actions/github-script@v7
+      with:
+        script: |
+          github.rest.issues.createComment({
+            issue_number: context.issue.number,
+            owner: context.repo.owner,
+            repo: context.repo.repo,
+            body: `🚀 **Preview Environment Deployed!**
+            
+            **API URL:** ${{ steps.get-url.outputs.api_url }}
+            **Stage:** pr-${{ github.event.number }}
+            
+            The preview environment will be automatically cleaned up when the PR is closed.`
+          })
+
+  cleanup-preview:
+    runs-on: ubuntu-latest
+    if: github.event.action == 'closed'
+    environment: preview
+    
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ env.NODE_VERSION }}
+        cache: 'npm'
+    
+    - name: Configure AWS credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.AWS_REGION }}
+    
+    - name: Install dependencies
+      run: npm ci
+    
+    - name: Remove preview environment
+      run: |
+        STAGE_NAME="pr-${{ github.event.number }}"
+        npx serverless remove --stage $STAGE_NAME

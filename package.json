@@ -81,7 +81,7 @@
     "babel-loader": "^10.0.0",
     "copy-webpack-plugin": "^13.0.1",
     "postcss": "^8.5",
-    "serverless": "^3.38.0",
+    "serverless": "^4.4.0",
     "serverless-offline": "^14.4.0",
     "serverless-webpack": "^5.15.3",
     "tailwindcss": "^4.1.9",

@@ -1,71 +1,210 @@
 # Serverless CRUD Application
 
-A full-stack serverless application built with AWS Lambda, API Gateway, DynamoDB, and React. This project demonstrates a complete CRUD (Create, Read, Update, Delete) application with modern CI/CD practices.
+A full-stack serverless application built with AWS Lambda, API Gateway, DynamoDB, and React. This project demonstrates a complete CRUD (Create, Read, Update, Delete).
 
-** QUICK START: This project includes sample credentials for immediate testing. See [SAMPLE-CREDENTIALS.md](./SAMPLE-CREDENTIALS.md) for details.**
+### AWS Resources Created
 
-## Architecture
+#### Backend Resources (Auto-created by Serverless Framework)
+- **Lambda Functions**: 6 functions for CRUD operations + CORS
+- **API Gateway**: HTTP API with CORS enabled
+- **DynamoDB Table**: `serverless-crud-api-{stage}-items`
+- **IAM Roles**: Execution roles with DynamoDB permissions
+- **CloudWatch Logs**: Function loggingodern CI/CD practices.
+
+** QUICK START: This project includes sample credentials for immediate testing.**
+
+##  Architecture
 
 ### Backend
-- **AWS Lambda**: Serverless compute for API endpoints
-- **API Gateway**: RESTful API management
+- **AWS Lambda**: Serverless compute for API endpoints (Node.js 18.x)
+- **API Gateway**: HTTP API management with CORS support
 - **DynamoDB**: NoSQL database for data storage
-- **Serverless Framework**: Infrastructure as Code (IaC)
+- **Serverless Framework v3**: Infrastructure as Code (IaC)
 
 ### Frontend
-- **React**: Modern UI library
+- **React 18**: Modern UI library with Create React App
 - **Tailwind CSS**: Utility-first CSS framework
 - **Axios**: HTTP client for API calls
 - **React Toastify**: Toast notifications
 
 ### CI/CD
 - **GitHub Actions**: Automated testing and deployment
-- **Multi-stage deployments**: Development, Production, and PR previews
-- **AWS S3 + CloudFront**: Frontend hosting and CDN
+- **Multi-stage deployments**: Development and Production
+- **Webpack**: Module bundling via Serverless Framework
 
 ##  Quick Start
 
-### Prerequisites
+### ⚡ Super Quick Setup (2 minutes)
 
-1. **AWS Account**: You'll need an AWS account with appropriate permissions
-2. **Node.js**: Version 18.x or higher
-3. **AWS CLI**: Configured with your credentials
-4. **Serverless Framework**: Install globally with `npm install -g serverless`
+```bash
+# 1. Clone the repository
+git clone <your-repo-url>
+cd serverless-crud-app
 
-### Backend Setup
+# 2. Install backend dependencies
+cd backend
+npm install
 
-1. **Clone the repository**
+# 3. Install frontend dependencies
+cd ../frontend
+npm install
+
+# 4. Start development servers
+cd ../backend && npm run offline    # Terminal 1: Backend API
+cd frontend && npm start            # Terminal 2: React App
+```
+
+Visit: http://localhost:3000
+
+### Prerequisites for AWS Deployment
+
+1. **AWS Account** with appropriate permissions
+2. **Node.js** 18.x or higher
+3. **AWS CLI** configured with credentials
+4. **Serverless Framework**: `npm install -g serverless`
+
+##  Environment Variables
+
+### Backend Environment Variables
+
+#### Auto-configured by Serverless Framework
+```bash
+# These are automatically set by serverless.yml
+DYNAMODB_TABLE=serverless-crud-api-{stage}-items  # Auto-generated table name
+STAGE=dev                                         # Deployment stage (dev/prod)
+```
+
+#### AWS Runtime Environment Variables (Set by AWS)
+```bash
+AWS_REGION=us-east-1                             # AWS region for resources
+AWS_LAMBDA_FUNCTION_NAME=serverless-crud-api-dev-{functionName}
+AWS_LAMBDA_FUNCTION_VERSION=$LATEST
+```
+
+###  Frontend Environment Variables
+
+#### Required for API Communication
+Create a `.env` file in the `frontend/` folder:
+```bash
+# API Gateway URL (get this after backend deployment)
+REACT_APP_API_URL=https://your-api-id.execute-api.us-east-1.amazonaws.com/dev
+
+# Environment setting (development or production)
+REACT_APP_ENVIRONMENT=development
+```
+
+#### Optional Frontend Environment Variables
+```bash
+# For production builds
+REACT_APP_ENVIRONMENT=production
+REACT_APP_API_URL=https://your-api-id.execute-api.us-east-1.amazonaws.com/prod
+
+# For debugging (optional)
+REACT_APP_DEBUG=true
+```
+
+### AWS Credentials Setup
+
+#### For Local Development
+```bash
+# Method 1: AWS CLI configuration
+aws configure
+# AWS Access Key ID: [YOUR_ACCESS_KEY_ID]
+# AWS Secret Access Key: [YOUR_SECRET_ACCESS_KEY]
+# Default region name: us-east-1
+# Default output format: json
+
+# Method 2: Environment variables (alternative)
+export AWS_ACCESS_KEY_ID=your_access_key_id
+export AWS_SECRET_ACCESS_KEY=your_secret_access_key
+export AWS_DEFAULT_REGION=us-east-1
+```
+
+#### For GitHub Actions CI/CD
+Add these secrets in GitHub Repository Settings → Secrets and Variables → Actions:
+```bash
+# Required for deployment
+AWS_ACCESS_KEY_ID=your_real_access_key_id
+AWS_SECRET_ACCESS_KEY=your_real_secret_access_key
+
+# Optional: specify region if different from default
+AWS_DEFAULT_REGION=us-east-1
+```
+
+### Deployment
+
+**Backend (from `/backend` folder):**
+```bash
+cd backend
+
+# Deploy to development
+npm run deploy:dev
+
+# Deploy to production
+npm run deploy:prod
+
+# Get deployment info
+npm run info:dev
+npm run info:prod
+
+# Remove deployments
+npm run remove:dev
+npm run remove:prod
+```
+
+**Frontend:**
+- Update `frontend/src/config/api.js` with your API Gateway URL
+- Build for production: `npm run build`
+
+### 🛠️ Development Scripts
+
+**Backend (from `/backend` folder):**
+```bash
+# Install dependencies
+npm install
+
+# Development
+npm run offline            # Run serverless offline (local API)
+npm run deploy:dev         # Deploy to AWS dev environment
+npm run deploy:prod        # Deploy to AWS production
+npm run info:dev          # Get dev deployment info
+npm run logs:dev          # View dev logs
+npm run remove:dev        # Remove dev deployment
+```
+
+**Frontend (from `/frontend` folder):**
+```bash
+# Install dependencies
+npm install
+
+# Development
+npm start                  # Run React dev server (localhost:3000)
+npm run build             # Build for production
+npm run build:dev         # Build with dev environment
+npm run build:prod        # Build with prod environment
+npm test                  # Run tests
+```
+
+### 🔧 AWS Setup for Production
+
+1. **Create IAM User** with policies:
+   - `AWSLambdaFullAccess`
+   - `AmazonDynamoDBFullAccess`  
+   - `AmazonAPIGatewayAdministrator`
+   - `CloudWatchLogsFullAccess`
+
+2. **Configure AWS CLI:**
    ```bash
-   git clone <your-repo-url>
-   cd serverless-crud-app
-   ```
-
-2. **Install dependencies**
-   ```bash
-   npm install
-   ```
-
-3. **Configure AWS credentials (SAMPLE INCLUDED)**
-   ```bash
-   # For testing: Use the sample credentials in SAMPLE-CREDENTIALS.md
-   # For production: Replace with real credentials
    aws configure
-   # AWS Access Key ID: AKIAIOSFODNN7EXAMPLE (SAMPLE - REPLACE WITH REAL)
-   # AWS Secret Access Key: wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY (SAMPLE)
+   # AWS Access Key ID: [Your real access key]
+   # AWS Secret Access Key: [Your real secret key]
    # Default region name: us-east-1
    # Default output format: json
    ```
 
-4. **Deploy to development**
-   ```bash
-   npm run deploy:dev
-   ```
-
-5. **Get your API URL**
-   ```bash
-   npm run info:dev
-   ```
-   Copy the API Gateway URL from the output.
+3. **Add GitHub Secrets** (for CI/CD):
+   - Go to GitHub repo → Settings → Secrets → Actions
+   - Add `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`
 
 ### Frontend Setup
 
@@ -92,7 +231,7 @@ A full-stack serverless application built with AWS Lambda, API Gateway, DynamoDB
 
 The application will be available at `http://localhost:3000`.
 
-## 🔧 Configuration
+##  Configuration
 
 ### Environment Variables
 
@@ -113,35 +252,28 @@ The application will be available at `http://localhost:3000`.
 - API Gateway permissions
 - CloudWatch Logs permissions
 
-#### For Frontend Deployment (Optional)
-- S3 bucket for static hosting
-- CloudFront distribution for CDN
-- Route 53 for custom domain (optional)
-
 ##  Deployment
 
 ### Manual Deployment
 
-#### Development
+#### Backend Deployment
 ```bash
-# Backend
+cd backend
+
+# Deploy to development
 npm run deploy:dev
 
-# Frontend
-cd frontend
-npm run build
-# Upload build/ folder to your hosting service
-```
-
-#### Production
-```bash
-# Backend
+# Deploy to production  
 npm run deploy:prod
 
-# Frontend
+# Get API Gateway URL after deployment
+npm run info:dev    # Copy the API Gateway URL
+```
+
+#### Frontend Deployment
+```bash
 cd frontend
-REACT_APP_API_URL=<your-prod-api-url> npm run build
-# Upload build/ folder to your hosting service
+
 ```
 
 ### Automated Deployment (CI/CD)
@@ -168,7 +300,7 @@ The CI/CD pipeline will automatically:
 - Deploy backend to production (after dev success)
 - Deploy frontend to production
 
-##  API Endpoints
+## 📱 API Endpoints
 
 ### Base URL
 - **Development**: `https://abc123def4.execute-api.us-east-1.amazonaws.com/dev` (SAMPLE)
@@ -212,25 +344,12 @@ curl -X POST https://abc123def4.execute-api.us-east-1.amazonaws.com/dev/items \
 }
 ```
 
-##  Testing
-
-### Backend Testing
-```bash
-npm test
-```
-
-### Frontend Testing
-```bash
-cd frontend
-npm test
-```
-
 ### Manual Testing
 1. Start the backend locally: `npm run dev`
 2. Start the frontend locally: `cd frontend && npm start`
 3. Test all CRUD operations through the UI
 
-## 📊 Monitoring
+## Monitoring
 
 ### CloudWatch Logs
 - View Lambda function logs in AWS CloudWatch
@@ -252,8 +371,6 @@ npm run logs:prod
 2. **DynamoDB**: Uses IAM roles for access control
 3. **Lambda**: Minimal permissions principle
 4. **Frontend**: Environment variables for configuration
-
-##  Troubleshooting
 
 ### Common Issues
 
@@ -284,38 +401,42 @@ npm run remove:prod
 npm run logs:dev -- --function createItem
 ```
 
-## Scaling Considerations
+### Common Issues
 
-### Backend
-- Lambda automatically scales based on demand
-- DynamoDB uses on-demand billing for automatic scaling
-- API Gateway handles high traffic loads
+**Permission Denied Errors:**
+```bash
+# Check AWS credentials
+aws sts get-caller-identity
 
-### Frontend
-- CloudFront CDN for global distribution
-- S3 for static asset hosting
-- Consider implementing caching strategies
+# Verify IAM permissions in AWS Console
+```
 
-##  Contributing
+**Serverless Deployment Fails:**
+```bash
+# Clear serverless cache
+rm -rf backend/.serverless
 
-1. Fork the repository
-2. Create a feature branch: `git checkout -b feature/new-feature`
-3. Make your changes
-4. Run tests: `npm test`
-5. Commit your changes: `git commit -am 'Add new feature'`
-6. Push to the branch: `git push origin feature/new-feature`
-7. Submit a pull request
+# Redeploy
+npm run deploy:dev
+```
 
-##  Support
+**Frontend Can't Connect to API:**
+- Verify API URL in `frontend/src/services/itemService.js`
+- Check CORS settings in `backend/serverless.yml`
+- Ensure API Gateway is deployed correctly
 
-If you encounter any issues:
+**CI/CD Pipeline Fails:**
+- Add required GitHub Secrets: `AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`
+- Check CloudWatch logs for deployment errors
 
-1. Check the troubleshooting section above
-2. Review AWS CloudWatch logs
-3. Open an issue on GitHub
-4. Contact the development team
+### Monitoring & Logs
 
-##  Useful Links
+```bash
+
+npm run logs:dev
+
+```
+## Useful Links
 
 - [AWS Lambda Documentation](https://docs.aws.amazon.com/lambda/)
 - [Serverless Framework Documentation](https://www.serverless.com/framework/docs/)
@@ -323,10 +444,5 @@ If you encounter any issues:
 - [Tailwind CSS Documentation](https://tailwindcss.com/docs)
 - [DynamoDB Documentation](https://docs.aws.amazon.com/dynamodb/)
 
----
-
-**Entry Point URL**: After deployment, your React application will be available at the URL provided by your hosting service (S3 + CloudFront or other hosting platform).
-
 **Sample API URL**: `https://abc123def4.execute-api.us-east-1.amazonaws.com/dev`
 
-** IMPORTANT**: The credentials and URLs in this project are SAMPLE/FAKE values for testing. Replace them with real AWS credentials and resources before deploying to production. See [SAMPLE-CREDENTIALS.md](./SAMPLE-CREDENTIALS.md) for details.

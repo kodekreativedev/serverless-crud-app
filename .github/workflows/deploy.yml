@@ -23,7 +23,9 @@ jobs:
         cache: 'npm'
     
     - name: Install backend dependencies
-      run: npm ci
+      run: |
+        cd backend
+        npm ci
     
     - name: Install frontend dependencies
       run: |
@@ -64,11 +66,14 @@ jobs:
       run: npm ci
     
     - name: Deploy to development
-      run: npm run deploy:dev
+      run: |
+        cd backend
+        npm run deploy:dev
     
     - name: Get API Gateway URL
       id: get-url
       run: |
+        cd backend
         API_URL=$(npx serverless info --stage dev --verbose | grep -o 'https://[^[:space:]]*execute-api[^[:space:]]*' | head -1)
         echo "api_url=$API_URL" >> $GITHUB_OUTPUT
         echo "Development API URL: $API_URL"
@@ -101,15 +106,20 @@ jobs:
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
         aws-region: ${{ env.AWS_REGION }}
     
-    - name: Install dependencies
-      run: npm ci
+    - name: Install backend dependencies
+      run: |
+        cd backend
+        npm ci
     
     - name: Deploy to production
-      run: npm run deploy:prod
+      run: |
+        cd backend
+        npm run deploy:prod
     
     - name: Get API Gateway URL
       id: get-url
       run: |
+        cd backend
         API_URL=$(npx serverless info --stage prod --verbose | grep -o 'https://[^[:space:]]*execute-api[^[:space:]]*' | head -1)
         echo "api_url=$API_URL" >> $GITHUB_OUTPUT
         echo "Production API URL: $API_URL"
